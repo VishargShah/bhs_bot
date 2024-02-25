@@ -179,19 +179,22 @@ def summary(transcription):
     return final_response
 ###############################################################################
 def img_input(transcription):
-    model = GenerativeModel("gemini-1.0-pro")
-    prompt = """You are an expert bot. You should get only the relevant work related to interior design, decor,
-    bath fittings, modular kitchen and furnishings. You should discard all personal details, appointment details 
-    from the text.
-    The message is as follows.""" 
-    prompt = prompt + transcription
-    image_response = ""
-    responses = model.generate_content(prompt, stream=True)
-    for response in responses:
-        image_response = image_response + response.text
-        print(response.text, end="")
-    image_response = image_response.replace("\n"," ")
-    image_response = image_response.replace("*"," ")
+    if transcription!='':
+        model = GenerativeModel("gemini-1.0-pro")
+        prompt = """You are an expert bot. You should get only the relevant work related to interior design, decor,
+        bath fittings, modular kitchen and furnishings. You should discard all personal details, appointment details 
+        from the text.
+        The message is as follows.""" 
+        prompt = prompt + transcription
+        image_response = ""
+        responses = model.generate_content(prompt, stream=True)
+        for response in responses:
+            image_response = image_response + response.text
+            print(response.text, end="")
+        image_response = image_response.replace("\n"," ")
+        image_response = image_response.replace("*"," ")
+    else:
+        image_response = ""
     return image_response
 ###############################################################################
 # An axuillary function to display images in grid
@@ -278,20 +281,50 @@ if __name__ == "__main__":
     ############################ Main Function ################################
     st.title("Beautiful Home Services - Asian Paints")
     st.markdown("---")
-    filename = upload_audio()
-    long_audio_transcription = speech_to_text("data/"+filename, filename)
-    audio_summary = summary(long_audio_transcription)
-    img_prompt = img_input(audio_summary)
-    image_creation(img_prompt,filename)
-    st.markdown("---")
-    st.header("Below is the Transcription of the call with a customer:"+"\n", divider='rainbow')
-    st.write(long_audio_transcription+"\n")
-    st.markdown("---")
-    st.header("Below is the summary of the requirement of the customer:"+"\n", divider='rainbow')
-    st.write(audio_summary+"\n")
-    st.markdown("---")
-    st.header("Below is the A.I. generated interior spaces of a requirement:"+"\n", divider='rainbow')
-    list_of_img = glob.glob("images/*")
-    st.image(list_of_img, use_column_width=True)
-    st.markdown("---")
+    # Audio Uploading Tab
+    bucket_name = 'customer_voice_packets'
+    # 1. Authenticate to Google Cloud
+    credentials, project = google.auth.default()
+    # 2. Create a storage client
+    storage_client = storage.Client(project=project)
+    # 3. Get a reference to the bucket (check existence)
+    bucket = storage_client.bucket(bucket_name)
+    if not bucket:
+        raise ValueError(f"Bucket '{bucket_name}' not found")
+    # 4. Handle uploaded file
+    with st.form("my-form", clear_on_submit=True):
+        uploaded_file = st.file_uploader("Choose a audio file:", type=[".wav",".wave",".flac",".mp3"], accept_multiple_files=False)
+        submitted = st.form_submit_button("SUBMIT")
+    filename = ""
+    if uploaded_file is not None:
+        # Read audio file:
+        audio_bytes = uploaded_file.read()
+        st.audio(audio_bytes, format='audio/wav')
+        # 5. Generate unique filename
+        filename = f"{uploaded_file.name}"
+        # 6. Create blob and upload the file
+        blob = bucket.blob(filename)
+        blob.upload_from_string(audio_bytes, content_type=uploaded_file.type)
+        # Write on local
+        with open("data/" + filename, mode="wb") as f:
+            f.write(audio_bytes)        
+        # Print success message
+        st.success(f"File uploaded successfully: {filename}")
+        long_audio_transcription = speech_to_text("data/"+filename, filename)
+        audio_summary = summary(long_audio_transcription)
+        img_prompt = img_input(audio_summary)
+        image_creation(img_prompt,filename)
+        st.markdown("---")
+        st.header("Below is the Transcription of the call with a customer:"+"\n", divider='rainbow')
+        st.write(long_audio_transcription+"\n")
+        st.markdown("---")
+        st.header("Below is the summary of the requirement of the customer:"+"\n", divider='rainbow')
+        st.write(audio_summary+"\n")
+        st.markdown("---")
+        st.header("Below is the A.I. generated interior spaces of a requirement:"+"\n", divider='rainbow')
+        list_of_img = glob.glob("images/*")
+        st.image(list_of_img, use_column_width=True)
+        st.markdown("---")
+    else:
+        st.info("Please upload a WAV file.")
 ###############################################################################
