@@ -15,7 +15,7 @@ auth_token = 'f9f919024f7537f130a997c04e285256'
 ###############################################################################
 ### Importing python modules
 from pathlib import Path as p
-from twilio.rest import Client
+#from twilio.rest import Client
 import streamlit as st
 import glob, os
 import PIL.Image
@@ -32,7 +32,7 @@ import math
 import matplotlib.pyplot as plt
 ###############################################################################
 vertexai.init(project=PROJECT_ID, location=LOCATION)
-client = Client(account_sid, auth_token)
+#client = Client(account_sid, auth_token)
 ###############################################################################
 #Initializing Directory
 data_folder = p.cwd() / "data"
