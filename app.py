@@ -10,41 +10,29 @@ PROJECT_ID = "team-cookie-monsters"
 REGION = "us-central1"
 LOCATION = "us-central1"
 BUCKET_URI = "gs://customer_voice_packets"
+account_sid = 'AC0e3733bb6c768c2b621af786e924ce48'
+auth_token = 'f9f919024f7537f130a997c04e285256'
 ###############################################################################
 ### Importing python modules
-import pandas as pd
-from os import listdir
 from pathlib import Path as p
-from os.path import isfile, join
+from twilio.rest import Client
 import streamlit as st
-import os, glob, io, gc
+import glob, os
 import PIL.Image
-import yaml
-from yaml.loader import SafeLoader
-import streamlit_authenticator as stauth
 from google.cloud import storage
 import google.auth
-from pathlib import Path as p
-import librosa
-import pandas as pd
 from google.cloud.speech_v2 import SpeechClient
 from google.cloud.speech_v2.types import cloud_speech
 from google.api_core.client_options import ClientOptions
-import time
 import json
-from pprint import pprint
-import jiwer
-from io import BytesIO
-from google.cloud import aiplatform
 import vertexai
-vertexai.init(project=PROJECT_ID, location=LOCATION)
-from vertexai.generative_models import GenerationConfig, GenerativeModel, Image, Part
+from vertexai.generative_models import GenerativeModel
 from vertexai.preview.vision_models import ImageGenerationModel
-import google.auth
-from google.cloud import storage
-from vertexai.generative_models import GenerationConfig, GenerativeModel, Image, Part
 import math
 import matplotlib.pyplot as plt
+###############################################################################
+vertexai.init(project=PROJECT_ID, location=LOCATION)
+client = Client(account_sid, auth_token)
 ###############################################################################
 #Initializing Directory
 data_folder = p.cwd() / "data"
@@ -239,12 +227,14 @@ def display_images_in_grid(images,file_name):
             target_file = os.path.join("images/", filename)  # Adjust the new filename if needed
             # 5. Save the image to the target folder
             image.save(target_file)        
+            """
             #save to blob
             image_bb = images[i]._pil_image.convert('RGB')
             filename_bb = file_name+"image"+str(i)+".jpg"
             image_bb.save(filename_bb, format="JPEG")
             blob = bucket.blob(filename_bb)
             blob.upload_from_filename(filename_bb)
+            """
         else:
             # Hide empty subplots to avoid displaying blank axes.
             ax.axis("off")
