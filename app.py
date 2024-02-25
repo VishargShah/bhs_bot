@@ -268,23 +268,6 @@ if __name__ == "__main__":
         menu_items={
             'About': "## Upload the audio file and we will give you the summary and AI generated images of your requirement\n **Contact for updates** : Team Asian Paints"
         })
-    # Custom HTML/CSS for the banner
-    custom_html = """
-    <div class="banner">
-        <img src="streamlit/ap_bhs.png" alt="Banner Image">
-    </div>
-    <style>
-        .banner {
-            width: 160%;
-            height: 200px;
-            overflow: hidden;
-        }
-        .banner img {
-            width: 100%;
-            object-fit: cover;
-        }
-    </style>
-    """
     ############################ Main Function ################################
     files = glob.glob('data/*')
     for f in files:
@@ -296,8 +279,8 @@ if __name__ == "__main__":
     for f in files:
         os.remove(f)
     ############################ Main Function ################################
-    # Display the custom HTML
-    st.components.v1.html(custom_html)
+    # Display the Banner Image
+    st.image("streamlit/ap_bhs.png", use_column_width=True)
     #st.title("Beautiful Home Services - Asian Paints")
     st.markdown("---")
     # Audio Uploading Tab
