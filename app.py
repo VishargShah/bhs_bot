@@ -281,7 +281,7 @@ if __name__ == "__main__":
     ############################ Main Function ################################
     # Display the Banner Image
     image = PIL.Image.open("streamlit/ap_bhs.png")
-    new_image = image.resize((500, 150))
+    new_image = image.resize((300, 150))
     st.image(new_image)
     #st.title("Beautiful Home Services - Asian Paints")
     st.markdown("---")
