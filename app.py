@@ -214,6 +214,14 @@ def display_images_in_grid(images,file_name):
 
     for i, ax in enumerate(axes.flat):
         if i < len(images):
+            credentials, project = google.auth.default()
+ 
+            # Create a storage client using the authenticated credentials
+            storage_client = storage.Client(project=PROJECT_ID)
+ 
+            # Get a reference to the bucket
+            bucket = storage_client.bucket("customer_voice_packets")
+            
             # Display the image in the current axis.
             ax.imshow(images[i]._pil_image)
 
@@ -230,7 +238,13 @@ def display_images_in_grid(images,file_name):
             # 4. Construct the full path to the destination file
             target_file = os.path.join("images/", filename)  # Adjust the new filename if needed
             # 5. Save the image to the target folder
-            image.save(target_file)            
+            image.save(target_file)        
+            #save to blob
+            image_bb = images[i]._pil_image.convert('RGB')
+            filename_bb = file_name+"image"+str(i)+".jpg"
+            image_bb.save(filename_bb, format="JPEG")
+            blob = bucket.blob(filename_bb)
+            blob.upload_from_filename(filename_bb)
         else:
             # Hide empty subplots to avoid displaying blank axes.
             ax.axis("off")
