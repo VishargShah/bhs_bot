@@ -280,7 +280,9 @@ if __name__ == "__main__":
         os.remove(f)
     ############################ Main Function ################################
     # Display the Banner Image
-    st.image("streamlit/ap_bhs.png", use_column_width=True)
+    image = Image.open("streamlit/ap_bhs.png")
+    new_image = image.resize((600, 400))
+    st.image(new_image)
     #st.title("Beautiful Home Services - Asian Paints")
     st.markdown("---")
     # Audio Uploading Tab
